@@ -1,5 +1,6 @@
 //create audio for when player hits wall
 const bonkAudio = new Audio("./audio/Bonk.mp3");
+const congratsAudio = new Audio("./audio/Congrats.mp3")
 //check if user has completed the game today
 //
 //get current board for the day
@@ -9,15 +10,15 @@ let currentBoardNum = "1";
 let boardJson = {"board":[
     [1,1,1,1,1,1,1,1,1,1,0,"E"],
         [1,0,0,0,0,1,0,1,1,1,0,1],
-        [1,0,1,1,0,1,0,1,1,1,0,1],
+        [1,0,1,1,0,1,0,1,1,1,"H",1],
         [1,0,1,1,0,1,0,0,1,0,0,1],
         [1,0,0,0,0,1,1,0,0,0,1,1],
         [1,0,1,1,0,0,0,0,1,1,0,1],
-        [1,0,1,1,0,1,1,0,1,1,0,1],
+        [1,0,1,1,0,1,1,"M",1,1,0,1],
         [1,0,1,1,0,0,0,0,0,0,0,1],
         [1,0,0,0,0,1,1,0,0,1,1,1],
         [1,0,1,1,0,1,1,1,1,1,0,1],
-        [1,0,1,0,0,0,0,0,0,0,0,0],
+        [1,0,1,"L",0,0,0,0,0,0,0,0],
         [1,1,0,0,1,1,1,0,0,1,1,0],
         ["S",0,0,1,0,0,0,0,1,0,0,0]],
     "startX":0,
@@ -51,7 +52,7 @@ function drawBoard(board){
         startY += 5.5;
         for(let square of row){
             startX+= 5.5;
-                d3.select("#gameSVG")
+                d3.select("#mapG")
                     .append("rect")
                     .attr("value",square)
                     .attr("x",startX)
@@ -67,8 +68,14 @@ function drawBoard(board){
                             return "#5b5b5b";
                         else if(square == "S")
                             return "Green";
+                        else if(square == "L")
+                            return "#3771ee";
+                        else if(square == "M")
+                            return "#ffa318";
+                        else if(square == "H")
+                            return "#f8383a"
                         else
-                            return "Red";
+                            return "black";
                     })
                     .style("opacity",0)
                     .transition()
@@ -80,8 +87,8 @@ function drawBoard(board){
 currX = d3.select("rect[value=S]")["_groups"][0][0].x.baseVal.value + 2.5;
 //y value of starting square
 currY = d3.select("rect[value=S]")["_groups"][0][0].y.baseVal.value + 2.5;
-    
-d3.select("#gameSVG")
+
+d3.select("#mapG")
         .append("circle")
         .attr("id","playerCircle")
         .attr("cx", currX)
@@ -129,7 +136,11 @@ d3.select("#gameSVG")
             .duration(200)
             .attr("cx",currX)
             .attr("cy",currY);
+        zoom();
     });
+    setTimeout(function(){
+        zoom();
+    },2000)
 }
 
 //checks if next move is a valid move the updates backend
@@ -153,6 +164,12 @@ function checkBoard(colAdd,rowAdd){
     else {
         currCol = currCol + colAdd;
         currRow = currRow + rowAdd;
+
+        if(boardJson.board[currCol][currRow] !== 0)
+            d3.select("#playerCircle").style("fill","white")
+        else
+            d3.select("#playerCircle").style("fill","#8c8c8c")
+
         if(currCol == boardJson.endY && currRow == boardJson.endX)
             userWin();
         return true;
@@ -162,5 +179,13 @@ function checkBoard(colAdd,rowAdd){
 }
 //check to see if user has won the game
 function userWin(){
+    congratsAudio.play();
     alert("winner");
+}
+//zoom function to make sure game is zoomed in
+function zoom() {
+    d3.select("#mapG")
+        .transition()
+        .duration(750)
+        .attr("transform", "translate(" + currX + "," + currY + ")scale(" + 3 + ")translate(" + -currX + "," + -currY + ")");
 }

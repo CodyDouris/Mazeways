@@ -1,4 +1,7 @@
 #gameContainer{
-    border: 2px solid black;
-    border-radius: 2px;
+    /* border: 2px solid black;
+    border-radius: 2px; */
 }
+.checker {
+    fill: black;
+  }
